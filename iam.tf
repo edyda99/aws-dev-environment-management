@@ -90,3 +90,19 @@ resource "aws_iam_role_policy_attachment" "lambda_cleanup_attach" {
   role       = aws_iam_role.lambda_cleanup_role.name
   policy_arn = aws_iam_policy.lambda_cleanup_policy.arn
 }
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_run_cleanup_lambda" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.cleanup_lambda.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.every_weekday_EOD.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_run_create_lambda" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.creation_lambda.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.every_weekday_morning.arn
+}
